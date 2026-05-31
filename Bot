@@ -1,0 +1,70 @@
+import pym
+import random
+import time
+import threading
+
+# Server configuration
+SERVER_HOST = "blundersmp.aternos.me"  # Replace with your server IP
+SERVER_PORT = 47199            # Default Minecraft port
+BOT_USERNAME = "ignorbot"        # Bot's username
+
+# Global variable to track player count
+player_count = 0
+
+def check_player_count():
+    global player_count
+    # This is a simplified placeholder. In practice, you'd parse the player list 
+    # or use a server plugin/api to get the exact count.
+    # For now, we'll assume a small number for demonstration.
+    player_count = 2  # Replace with actual logic to fetch player count
+    return player_count
+
+def move_around(bot):
+    """Simulate random movement."""
+    directions = ["forward", "back", "left", "right"]
+    direction = random.choice(directions)
+    print(f"Bot is moving: {direction}")
+    # Add actual movement logic here if the library supports it
+
+def respawn(bot):
+    """Respawn if the bot dies."""
+    print("Bot died, respawning...")
+    # Add respawn logic here if the library supports it
+
+def bot_logic(bot):
+    global player_count
+    while True:
+        try:
+            # Check player count
+            current_players = check_player_count()
+            print(f"Current players: {current_players}")
+
+            if current_players >= 3:
+                print("Player count is high. Leaving server...")
+                bot.disconnect()
+                time.sleep(60)  # Wait before trying to rejoin
+                print("Rejoining server...")
+                bot = pym.Client(SERVER_HOST, SERVER_PORT, BOT_USERNAME)
+            else:
+                # Perform actions
+                move_around(bot)
+                time.sleep(10)  # Wait between actions
+
+        except Exception as e:
+            print(f"Error: {e}")
+            break
+
+# Main script
+if __name__ == "__main__":
+    try:
+        # Connect to the server
+        print(f"Connecting to {SERVER_HOST}:{SERVER_PORT} as {BOT_USERNAME}...")
+        bot = pym.Client(SERVER_HOST, SERVER_PORT, BOT_USERNAME)
+        print("Connected!")
+
+        # Start the bot logic in a separate thread
+        bot_thread = threading.Thread(target=bot_logic, args=(bot,))
+        bot_thread.start()
+
+    except Exception as e:
+        print(f"Failed to connect: {e}")
